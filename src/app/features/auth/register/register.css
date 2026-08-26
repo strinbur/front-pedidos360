@@ -1,0 +1,190 @@
+.register-page {
+  min-height: calc(100vh - 140px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 1.5rem;
+}
+
+.register-card {
+  width: 100%;
+  max-width: 480px;
+  background-color: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(43, 32, 22, 0.08);
+  border: 1px solid rgba(43, 32, 22, 0.06);
+  padding: 2.5rem 2rem;
+}
+
+/* Header del card */
+.register-card__header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.register-card__logo {
+  font-size: 1.3rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.register-card__logo-main {
+  color: #2b2016;
+}
+
+.register-card__logo-accent {
+  color: #a8683f;
+}
+
+.register-card__title {
+  margin: 1.25rem 0 0.4rem;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #2b2016;
+}
+
+.register-card__subtitle {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #7a5f47;
+}
+
+/* Formulario */
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.register-form__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.form-field__label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #3d2f22;
+}
+
+.form-field__control {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  border: 1.5px solid rgba(43, 32, 22, 0.15);
+  border-radius: 10px;
+  padding: 0 0.85rem;
+  background-color: #FFF8F0;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.form-field__control:focus-within {
+  border-color: #a8683f;
+  box-shadow: 0 0 0 3px rgba(168, 104, 63, 0.12);
+}
+
+.form-field__icon {
+  color: #a8683f;
+  flex-shrink: 0;
+}
+
+.form-field__input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  outline: none;
+  padding: 0.75rem 0;
+  font-size: 0.92rem;
+  color: #2b2016;
+}
+
+.form-field__input::placeholder {
+  color: #b0a394;
+}
+
+.form-field__toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  padding: 0.3rem;
+  color: #a8683f;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background-color 0.15s ease;
+}
+
+.form-field__toggle:hover {
+  background-color: rgba(43, 32, 22, 0.06);
+}
+
+.form-field__error {
+  font-size: 0.78rem;
+  color: #c0392b;
+}
+
+/* Botón submit */
+.register-form__submit {
+  margin-top: 0.5rem;
+  height: 46px;
+  border: none;
+  border-radius: 10px;
+  background-color: #2b2016;
+  color: #FFF8F0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+.register-form__submit:hover:not(:disabled) {
+  background-color: #a8683f;
+}
+
+.register-form__submit:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.register-form__submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Footer del card */
+.register-card__footer {
+  margin: 1.75rem 0 0;
+  text-align: center;
+  font-size: 0.88rem;
+  color: #7a5f47;
+}
+
+.register-card__link {
+  color: #a8683f;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.register-card__link:hover {
+  text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .register-card {
+    padding: 2rem 1.5rem;
+    border-radius: 12px;
+  }
+
+  .register-form__row {
+    grid-template-columns: 1fr;
+  }
+}

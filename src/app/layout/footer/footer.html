@@ -1,16 +1,49 @@
 <footer class="footer">
   <div class="footer__content">
 
-    <div class="footer__brand">
+    <div class="footer__col footer__brand">
       <span class="footer__logo">Pedidos360</span>
       <p class="footer__tagline">Tu plataforma de pedidos, simple y rápida.</p>
+
+      <div class="footer__socials">
+        <a href="https://facebook.com" target="_blank" rel="noopener" class="footer__social-icon" aria-label="Facebook">
+          <app-icon name="facebook"></app-icon>
+        </a>
+        <a href="https://instagram.com" target="_blank" rel="noopener" class="footer__social-icon" aria-label="Instagram">
+          <app-icon name="instagram"></app-icon>
+        </a>
+        <a href="https://wa.me/56912345678" target="_blank" rel="noopener" class="footer__social-icon" aria-label="WhatsApp">
+          <app-icon name="whatsapp"></app-icon>
+        </a>
+      </div>
     </div>
 
-    <nav class="footer__links">
-      <a routerLink="/" class="footer__link">Inicio</a>
-      <a routerLink="/auth/login" class="footer__link">Iniciar sesión</a>
-      <a routerLink="/auth/register" class="footer__link">Registrarse</a>
-    </nav>
+    <div class="footer__col">
+      <h3 class="footer__heading">Navegación</h3>
+      <nav class="footer__links">
+        <a routerLink="/" class="footer__link">Inicio</a>
+        <a routerLink="/auth/login" class="footer__link">Iniciar sesión</a>
+        <a routerLink="/auth/register" class="footer__link">Registrarse</a>
+      </nav>
+    </div>
+
+    <div class="footer__col">
+      <h3 class="footer__heading">Contacto</h3>
+      <ul class="footer__contact">
+        <li class="footer__contact-item">
+          <app-icon name="mail"></app-icon>
+          <a href="mailto:pedidos360@gmail.com">pedidos360&#64;gmail.com</a>
+        </li>
+        <li class="footer__contact-item">
+          <app-icon name="phone"></app-icon>
+          <a href="tel:+56912345678">+56 9 1234 5678</a>
+        </li>
+        <li class="footer__contact-item">
+          <app-icon name="map-pin"></app-icon>
+          <span>Av. Siempre Viva 1234, Santiago</span>
+        </li>
+      </ul>
+    </div>
 
   </div>
 
