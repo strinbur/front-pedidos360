@@ -1,7 +1,12 @@
-import { Component, signal, HostListener, ElementRef, inject } from '@angular/core';
+import { Component, signal, HostListener, ElementRef, inject, OnInit, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { filter } from 'rxjs';
+import { EventType } from '@azure/msal-browser';
+import { MsalBroadcastService } from '@azure/msal-angular';
 import { Icon } from '../../shared/icon/icon';
+import { MsalAuthService } from '../../core/msal-auth/msal-auth.service';
 
 @Component({
   selector: 'app-header',
@@ -10,14 +15,60 @@ import { Icon } from '../../shared/icon/icon';
   templateUrl: './header.html',
   styleUrl: './header.css'
 })
-export class Header {
+export class Header implements OnInit {
   private elementRef = inject(ElementRef);
+  private msalAuth = inject(MsalAuthService);
+  private msalBroadcastService = inject(MsalBroadcastService);
+  private destroyRef = inject(DestroyRef);
 
   isUserMenuOpen = signal(false);
   cartCount = signal(0);
 
+  isLoggedIn = signal(false);
+  userInitial = signal('');
+  userName = signal('');
+
+  ngOnInit(): void {
+    this.refreshUserState();
+
+    // Escucha eventos de MSAL (login/logout exitosos) y refresca el estado automáticamente
+    this.msalBroadcastService.msalSubject$
+      .pipe(
+        filter((msg) =>
+          msg.eventType === EventType.LOGIN_SUCCESS ||
+          msg.eventType === EventType.LOGOUT_SUCCESS
+        ),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.refreshUserState();
+      });
+  }
+
+  private refreshUserState(): void {
+    const loggedIn = this.msalAuth.isLoggedIn();
+    this.isLoggedIn.set(loggedIn);
+
+    if (loggedIn) {
+      const user = this.msalAuth.getUser();
+      const name = user?.name ?? user?.email ?? '';
+      this.userName.set(name);
+      this.userInitial.set(name.charAt(0).toUpperCase());
+    } else {
+      this.userName.set('');
+      this.userInitial.set('');
+    }
+  }
+
   toggleUserMenu(): void {
     this.isUserMenuOpen.update(open => !open);
+  }
+
+  logout(): void {
+    this.isUserMenuOpen.set(false);
+    this.msalAuth.logout().then(() => {
+      this.refreshUserState();
+    });
   }
 
   @HostListener('document:click', ['$event'])

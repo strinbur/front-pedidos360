@@ -1,8 +1,9 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Icon } from '../../../shared/icon/icon';
+import { MsalAuthService } from '../../../core/msal-auth/msal-auth.service';
 
 @Component({
   selector: 'app-login',
@@ -13,6 +14,7 @@ import { Icon } from '../../../shared/icon/icon';
 })
 export class Login {
   private fb = new FormBuilder();
+  private msalAuth = inject(MsalAuthService);
 
   showPassword = signal(false);
   isSubmitting = signal(false);
@@ -38,5 +40,9 @@ export class Login {
     console.log('Datos de login:', this.loginForm.value);
 
     setTimeout(() => this.isSubmitting.set(false), 1000); // simulado, borra cuando conectes el servicio real
+  }
+
+  loginWithMicrosoft(): void {
+    this.msalAuth.loginWithMicrosoft();
   }
 }
