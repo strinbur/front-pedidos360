@@ -86,6 +86,21 @@
   padding: 0 0.6rem;
 }
 
+/* Avatar con inicial (usuario logueado) */
+.header__avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background-color: #a8683f;
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
 /* Dropdown: el contenedor exterior pega justo debajo del botón,
    sin ningún hueco, para que el mouse no pierda el hover al bajar */
 .header__dropdown {
@@ -120,10 +135,16 @@
 
 .header__dropdown-item {
   display: block;
+  width: 100%;
   padding: 0.75rem 1.1rem;
   color: #3d2f22;
   text-decoration: none;
   font-size: 0.9rem;
+  text-align: left;
+  border: none;
+  background: none;
+  font-family: inherit;
+  cursor: pointer;
   transition: background-color 0.15s ease;
 }
 
@@ -133,6 +154,19 @@
 
 .header__dropdown-item + .header__dropdown-item {
   border-top: 1px solid rgba(43, 32, 22, 0.08);
+}
+
+/* Info de usuario dentro del dropdown */
+.header__dropdown-user {
+  padding: 0.75rem 1.1rem;
+  border-bottom: 1px solid rgba(43, 32, 22, 0.08);
+}
+
+.header__dropdown-user-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #2b2016;
+  word-break: break-word;
 }
 
 /* Badge del carrito */

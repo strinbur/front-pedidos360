@@ -18,16 +18,29 @@
           [attr.aria-expanded]="isUserMenuOpen()"
           aria-label="Cuenta de usuario"
         >
-          <app-icon name="user" [size]="20"></app-icon>
-          <span class="header__icon-btn-label">Cuenta</span>
+          @if (isLoggedIn()) {
+            <span class="header__avatar">{{ userInitial() }}</span>
+          } @else {
+            <app-icon name="user" [size]="20"></app-icon>
+            <span class="header__icon-btn-label">Cuenta</span>
+          }
           <app-icon name="chevron-down" [size]="14" class="header__chevron"></app-icon>
         </button>
 
         @if (isUserMenuOpen()) {
           <div class="header__dropdown">
             <div class="header__dropdown-inner">
-              <a routerLink="/auth/login" class="header__dropdown-item" (click)="isUserMenuOpen.set(false)">Iniciar sesión</a>
-              <a routerLink="/auth/register" class="header__dropdown-item" (click)="isUserMenuOpen.set(false)">Registrarse</a>
+              @if (isLoggedIn()) {
+                <div class="header__dropdown-user">
+                  <span class="header__dropdown-user-name">{{ userName() }}</span>
+                </div>
+                <button type="button" class="header__dropdown-item header__dropdown-item--button" (click)="logout()">
+                  Cerrar sesión
+                </button>
+              } @else {
+                <a routerLink="/auth/login" class="header__dropdown-item" (click)="isUserMenuOpen.set(false)">Iniciar sesión</a>
+                <a routerLink="/auth/register" class="header__dropdown-item" (click)="isUserMenuOpen.set(false)">Registrarse</a>
+              }
             </div>
           </div>
         }
