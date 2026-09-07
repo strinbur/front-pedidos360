@@ -1,0 +1,30 @@
+<div *ngIf="error()" style="color:red">{{ error() }}</div>
+
+<h3>{{ editingId() ? 'Editar producto' : 'Nuevo producto' }}</h3>
+<form (ngSubmit)="save()">
+  <input [(ngModel)]="formModel.code" name="code" placeholder="Código" required>
+  <input [(ngModel)]="formModel.name" name="name" placeholder="Nombre" required>
+  <input [(ngModel)]="formModel.description" name="description" placeholder="Descripción">
+  <input [(ngModel)]="formModel.price" name="price" type="number" placeholder="Precio">
+  <input [(ngModel)]="formModel.stock" name="stock" type="number" placeholder="Stock">
+  <input [(ngModel)]="formModel.category" name="category" placeholder="Categoría">
+  <button type="submit">{{ editingId() ? 'Actualizar' : 'Crear' }}</button>
+  <button type="button" *ngIf="editingId()" (click)="cancelEdit()">Cancelar</button>
+</form>
+
+<hr>
+
+<table>
+  <tr><th>Código</th><th>Nombre</th><th>Precio</th><th>Stock</th><th>Categoría</th><th></th></tr>
+  <tr *ngFor="let p of products()">
+    <td>{{ p.code }}</td>
+    <td>{{ p.name }}</td>
+    <td>${{ p.price }}</td>
+    <td>{{ p.stock }}</td>
+    <td>{{ p.category }}</td>
+    <td>
+      <button (click)="edit(p)">Editar</button>
+      <button (click)="remove(p.id!)">Borrar</button>
+    </td>
+  </tr>
+</table>

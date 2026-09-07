@@ -1,7 +1,7 @@
 import { Component, signal, HostListener, ElementRef, inject, OnInit, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import { filter } from 'rxjs';
 import { EventType } from '@azure/msal-browser';
 import { MsalBroadcastService } from '@azure/msal-angular';
@@ -11,7 +11,7 @@ import { MsalAuthService } from '../../core/msal-auth/msal-auth.service';
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterLink, Icon],
+  imports: [CommonModule, RouterLink, RouterLinkActive, Icon],
   templateUrl: './header.html',
   styleUrl: './header.css'
 })
