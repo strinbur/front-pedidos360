@@ -1,7 +1,7 @@
 import { Component, signal, HostListener, ElementRef, inject, OnInit, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import { filter } from 'rxjs';
 import { EventType } from '@azure/msal-browser';
 import { MsalBroadcastService } from '@azure/msal-angular';
@@ -11,7 +11,7 @@ import { MsalAuthService } from '../../core/msal-auth/msal-auth.service';
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterLink, Icon],
+  imports: [CommonModule, RouterLink, RouterLinkActive, Icon],
   templateUrl: './header.html',
   styleUrl: './header.css'
 })
@@ -27,11 +27,11 @@ export class Header implements OnInit {
   isLoggedIn = signal(false);
   userInitial = signal('');
   userName = signal('');
+  isAdmin = signal(false);
 
   ngOnInit(): void {
     this.refreshUserState();
 
-    // Escucha eventos de MSAL (login/logout exitosos) y refresca el estado automáticamente
     this.msalBroadcastService.msalSubject$
       .pipe(
         filter((msg) =>
@@ -54,9 +54,11 @@ export class Header implements OnInit {
       const name = user?.name ?? user?.email ?? '';
       this.userName.set(name);
       this.userInitial.set(name.charAt(0).toUpperCase());
+      this.isAdmin.set(this.msalAuth.hasRole('ADMIN'));
     } else {
       this.userName.set('');
       this.userInitial.set('');
+      this.isAdmin.set(false);
     }
   }
 

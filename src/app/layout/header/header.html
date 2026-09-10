@@ -7,6 +7,18 @@
       </span>
     </a>
 
+    <!-- Navegación principal -->
+    <nav class="header__nav">
+      <a routerLink="/products" routerLinkActive="header__nav-link--active" class="header__nav-link">
+        Productos
+      </a>
+      @if (isAdmin()) {
+        <a routerLink="/dashboard" routerLinkActive="header__nav-link--active" class="header__nav-link">
+          Dashboard
+        </a>
+      }
+    </nav>
+
     <div class="header__actions">
 
       <!-- Usuario con dropdown -->
