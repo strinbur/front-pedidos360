@@ -1,10 +1,13 @@
-/* You can add global styles to this file, and also import other style files */
-
-/* src/styles.css */
 html,
 body {
   margin: 0;
   padding: 0;
-  background-color: #FFF8F0;
+  background-color: #fffaf4;
+  color: #4b3023;
+  font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
   min-height: 100%;
+}
+
+* {
+  box-sizing: border-box;
 }
