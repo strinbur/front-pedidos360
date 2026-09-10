@@ -30,4 +30,10 @@ export class MsalAuthService {
     const account = this.msalService.instance.getAllAccounts()[0];
     return account ? { name: account.name, email: account.username } : null;
   }
+
+  hasRole(role: string): boolean {
+    const account = this.msalService.instance.getAllAccounts()[0];
+    const roles = (account?.idTokenClaims as any)?.['roles'] as string[] | undefined;
+    return roles?.includes(role) ?? false;
+  }
 }

@@ -1,0 +1,16 @@
+<div class="products-page">
+  <h2 class="products-title">Nuestros productos</h2>
+
+  <div *ngIf="error()" class="error-message">{{ error() }}</div>
+
+  <div class="products-grid">
+    <div class="product-card" *ngFor="let p of products()">
+      <div class="product-card__category">{{ p.category }}</div>
+      <h3 class="product-card__name">{{ p.name }}</h3>
+      <p class="product-card__price">${{ p.price }}</p>
+      <button class="product-card__button" (click)="addToCart(p)">
+        Agregar al carrito
+      </button>
+    </div>
+  </div>
+</div>

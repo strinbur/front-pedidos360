@@ -2,24 +2,18 @@
 import { Routes } from '@angular/router';
 import { Login } from './features/auth/login/login';
 import { Register } from './features/auth/register/register';
-import { ProductListComponent } from './components/product-list/product-list.component';
-
+import { ProductListComponent } from './features/products/product-list.component';
+import { DashboardComponent } from './features/dashboard/dashboard.component';
+import { adminGuard } from './core/guards/admin.guard';
 
 export const routes: Routes = [
+  { path: 'auth/login', component: Login },
+  { path: 'auth/register', component: Register },
+  { path: 'products', component: ProductListComponent },
   {
-    path: 'auth/login',
-    component: Login
+    path: 'dashboard',
+    component: DashboardComponent,
+    canActivate: [adminGuard]
   },
-  {
-    path: 'auth/register',
-    component: Register
-  },
-  {
-    path: '**',
-    redirectTo: ''
-  },
-  {
-    path: 'products',
-    component: ProductListComponent
-  },
+  { path: '**', redirectTo: '' },
 ];

@@ -27,11 +27,11 @@ export class Header implements OnInit {
   isLoggedIn = signal(false);
   userInitial = signal('');
   userName = signal('');
+  isAdmin = signal(false);
 
   ngOnInit(): void {
     this.refreshUserState();
 
-    // Escucha eventos de MSAL (login/logout exitosos) y refresca el estado automáticamente
     this.msalBroadcastService.msalSubject$
       .pipe(
         filter((msg) =>
@@ -54,9 +54,11 @@ export class Header implements OnInit {
       const name = user?.name ?? user?.email ?? '';
       this.userName.set(name);
       this.userInitial.set(name.charAt(0).toUpperCase());
+      this.isAdmin.set(this.msalAuth.hasRole('ADMIN'));
     } else {
       this.userName.set('');
       this.userInitial.set('');
+      this.isAdmin.set(false);
     }
   }
 
