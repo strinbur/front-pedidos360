@@ -7,6 +7,7 @@ import { EventType } from '@azure/msal-browser';
 import { MsalBroadcastService } from '@azure/msal-angular';
 import { Icon } from '../../shared/icon/icon';
 import { MsalAuthService } from '../../core/msal-auth/msal-auth.service';
+import { CartService } from '../../features/cart/cart.service';
 
 @Component({
   selector: 'app-header',
@@ -20,9 +21,10 @@ export class Header implements OnInit {
   private msalAuth = inject(MsalAuthService);
   private msalBroadcastService = inject(MsalBroadcastService);
   private destroyRef = inject(DestroyRef);
+  private cartService = inject(CartService);
 
   isUserMenuOpen = signal(false);
-  cartCount = signal(0);
+  cartCount = this.cartService.totalItems;
 
   isLoggedIn = signal(false);
   userInitial = signal('');

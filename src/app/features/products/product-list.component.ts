@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ProductService } from './product.service';
 import { Product } from '../../models/product.model';
 import { environment } from '../../../enviroments/enviroment.development';
+import { CartService } from '../cart/cart.service';
 
 @Component({
   selector: 'app-product-list',
@@ -13,6 +14,7 @@ import { environment } from '../../../enviroments/enviroment.development';
 })
 export class ProductListComponent implements OnInit {
   private productService = inject(ProductService);
+  private cartService = inject(CartService);
 
   products = signal<Product[]>([]);
   error = signal<string | null>(null);
@@ -40,8 +42,7 @@ export class ProductListComponent implements OnInit {
   }
 
   addToCart(product: Product): void {
-    console.log('Agregado al carrito:', product);
-    // TODO: acá conectaremos la lógica real del carrito más adelante
+    this.cartService.addToCart(product);
   }
 
   selectCategory(category: string): void {
