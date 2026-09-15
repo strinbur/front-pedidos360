@@ -1,4 +1,372 @@
-<div class="dashboard-page">
-  <h1>Dashboard</h1>
-  <p>Si ves esto, entraste porque sos ADMIN.</p>
+<div class="dash">
+  <header class="dash__header">
+    <div class="dash__brand">Pedidos360</div>
+    <div class="dash__intro">
+      <h1>Controla tu operación completa</h1>
+      <p>Usuarios, productos, ventas y pedidos en un solo lugar.</p>
+    </div>
+  </header>
+
+  <section class="dash__cards" aria-label="Secciones del panel">
+    @for (card of cards(); track card.id) {
+      <button
+        type="button"
+        class="dash__card"
+        [class.dash__card--active]="activeSection() === card.id"
+        (click)="selectSection(card.id)"
+      >
+        <span class="dash__card-label">{{ card.label }}</span>
+        <span class="dash__card-value">{{ card.value }}</span>
+        <span class="dash__card-meta">{{ card.meta }}</span>
+      </button>
+    }
+  </section>
+
+  <div class="dash__grid">
+    <section class="dash__panel">
+      <div class="dash__panel-head">
+        @switch (activeSection()) {
+          @case ('usuarios') { <h2>Usuarios</h2> }
+          @case ('productos') { <h2>Productos</h2> }
+          @case ('ventas') { <h2>Ventas</h2> }
+          @case ('pedidos') { <h2>Pedidos</h2> }
+        }
+
+        @if (activeSection() === 'productos') {
+          <button type="button" class="dash__action" (click)="startCreate()">Nuevo producto</button>
+        }
+      </div>
+
+      @if (actionMessage()) {
+        <p class="dash__message dash__message--success">{{ actionMessage() }}</p>
+      }
+
+      <!-- Productos: datos reales -->
+      @if (activeSection() === 'productos') {
+        @if (loadingProducts()) {
+          <p class="dash__message">Cargando inventario...</p>
+        } @else if (productsError()) {
+          <p class="dash__message dash__message--error">No se pudo cargar el inventario.</p>
+        } @else if (products().length === 0) {
+          <div class="dash__empty">
+            <p>Todavía no hay productos en el catálogo.</p>
+            <small>Usa «Nuevo producto» para agregar el primero.</small>
+          </div>
+        } @else {
+          <div class="table table--products" role="table" aria-label="Productos">
+            <div class="table__row table__row--head" role="row">
+              <span>Imagen</span>
+              <span>Nombre</span>
+              <button type="button" class="table__sort" (click)="sortProductsBy('code')">Código{{ getSortIndicator('code', productSortKey(), productSortDirection()) }}</button>
+              <button type="button" class="table__sort" (click)="sortProductsBy('category')">Categoría{{ getSortIndicator('category', productSortKey(), productSortDirection()) }}</button>
+              <button type="button" class="table__sort" (click)="sortProductsBy('price')">Precio{{ getSortIndicator('price', productSortKey(), productSortDirection()) }}</button>
+              <button type="button" class="table__sort" (click)="sortProductsBy('stock')">Stock{{ getSortIndicator('stock', productSortKey(), productSortDirection()) }}</button>
+              <span></span>
+            </div>
+            @for (product of pagedProducts(); track product.id ?? product.code) {
+              <div class="table__row" [class.table__row--low]="product.stock <= 5" role="row">
+                @if (getImageUrl(product); as imageUrl) {
+                  <img class="table__product-image" [src]="imageUrl" [alt]="product.name" loading="lazy" />
+                } @else {
+                  <span class="table__product-placeholder">Sin imagen</span>
+                }
+                <strong>{{ product.name }}</strong>
+                <span>{{ product.code }}</span>
+                <span>{{ product.category }}</span>
+                <span>{{ formatClp(product.price) }}</span>
+                <span>{{ product.stock }}</span>
+                <span class="table__actions">
+                  <button type="button" class="table__edit" (click)="startEdit(product)">Editar</button>
+                  <button type="button" class="table__delete" (click)="deleteProduct(product)">Eliminar</button>
+                </span>
+              </div>
+            }
+          </div>
+          <div class="pagination" aria-label="Paginación de productos">
+            <label class="pagination__size">
+              Mostrar
+              <select [value]="pageSize()" (change)="setPageSize($any($event.target).value)">
+                <option value="5">5</option>
+                <option value="10">10</option>
+              </select>
+              registros
+            </label>
+            <div class="pagination__controls">
+              <button type="button" (click)="goToProductsPage(productsPage() - 1)" [disabled]="productsPage() === 1" aria-label="Página anterior">Anterior</button>
+              <span>Página {{ productsPage() }} de {{ productsTotalPages() }}</span>
+              <button type="button" (click)="goToProductsPage(productsPage() + 1)" [disabled]="productsPage() === productsTotalPages()" aria-label="Página siguiente">Siguiente</button>
+            </div>
+          </div>
+        }
+      }
+
+      <!-- Usuarios: datos de ejemplo -->
+      @if (activeSection() === 'usuarios') {
+        <div class="table" role="table" aria-label="Usuarios">
+          <div class="table__row table__row--head" role="row">
+            <span>Nombre</span>
+            <span>Email</span>
+            <span>Rol</span>
+            <span>Estado</span>
+          </div>
+          @for (user of mockUsers(); track user.email) {
+            <div class="table__row" role="row">
+              <strong>{{ user.name }}</strong>
+              <span>{{ user.email }}</span>
+              <span>{{ user.role }}</span>
+              <span class="badge" [class.badge--active]="user.status === 'Activo'">{{ user.status }}</span>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Ventas: pedidos confirmados -->
+      @if (activeSection() === 'ventas') {
+        @if (sales().length === 0) {
+          <div class="dash__empty">
+            <p>Todavía no hay ventas confirmadas.</p>
+            <small>Las ventas aparecerán cuando un pedido pase a estado Confirmado.</small>
+          </div>
+        } @else {
+        <div class="table table--sales" role="table" aria-label="Ventas">
+          <div class="table__row table__row--head" role="row">
+            <button type="button" class="table__sort" (click)="sortSalesBy('id')">Código{{ getSortIndicator('id', salesSortKey(), salesSortDirection()) }}</button>
+            <button type="button" class="table__sort" (click)="sortSalesBy('date')">Fecha{{ getSortIndicator('date', salesSortKey(), salesSortDirection()) }}</button>
+            <button type="button" class="table__sort" (click)="sortSalesBy('itemCount')">Items{{ getSortIndicator('itemCount', salesSortKey(), salesSortDirection()) }}</button>
+            <button type="button" class="table__sort" (click)="sortSalesBy('total')">Total{{ getSortIndicator('total', salesSortKey(), salesSortDirection()) }}</button>
+            <button type="button" class="table__sort" (click)="sortSalesBy('customer')">Cliente{{ getSortIndicator('customer', salesSortKey(), salesSortDirection()) }}</button>
+            <span></span>
+          </div>
+          @for (sale of pagedSales(); track sale.id) {
+            <div class="table__row" role="row">
+              <strong>{{ sale.id }}</strong>
+              <span>{{ sale.date | date:'short' }}</span>
+              <span>{{ sale.itemCount }}</span>
+              <strong>{{ formatClp(sale.total) }}</strong>
+              <span>{{ sale.customer.name }} ({{ sale.customer.email }})</span>
+              <button type="button" class="table__view" (click)="viewSale(sale)">Ver</button>
+            </div>
+          }
+        </div>
+        <div class="pagination" aria-label="Paginación de ventas">
+          <label class="pagination__size">
+            Mostrar
+            <select [value]="pageSize()" (change)="setPageSize($any($event.target).value)">
+              <option value="5">5</option>
+              <option value="10">10</option>
+            </select>
+            registros
+          </label>
+          <div class="pagination__controls">
+            <button type="button" (click)="goToSalesPage(salesPage() - 1)" [disabled]="salesPage() === 1">Anterior</button>
+            <span>Página {{ salesPage() }} de {{ salesTotalPages() }}</span>
+            <button type="button" (click)="goToSalesPage(salesPage() + 1)" [disabled]="salesPage() === salesTotalPages()">Siguiente</button>
+          </div>
+        </div>
+        }
+      }
+
+      <!-- Pedidos: datos persistidos en localStorage -->
+      @if (activeSection() === 'pedidos') {
+        @if (orders().length === 0) {
+          <div class="dash__empty">
+            <p>Todavía no hay pedidos registrados.</p>
+            <small>Los pedidos aparecen acá apenas alguien confirma una compra en el carrito.</small>
+          </div>
+        } @else {
+          <div class="table table--orders" role="table" aria-label="Pedidos">
+            <div class="table__row table__row--head" role="row">
+              <button type="button" class="table__sort" (click)="sortOrdersBy('id')">Código{{ getSortIndicator('id', orderSortKey(), orderSortDirection()) }}</button>
+              <button type="button" class="table__sort" (click)="sortOrdersBy('date')">Fecha{{ getSortIndicator('date', orderSortKey(), orderSortDirection()) }}</button>
+              <button type="button" class="table__sort" (click)="sortOrdersBy('itemCount')">Items{{ getSortIndicator('itemCount', orderSortKey(), orderSortDirection()) }}</button>
+              <button type="button" class="table__sort" (click)="sortOrdersBy('total')">Total{{ getSortIndicator('total', orderSortKey(), orderSortDirection()) }}</button>
+              <button type="button" class="table__sort" (click)="sortOrdersBy('customer')">Cliente{{ getSortIndicator('customer', orderSortKey(), orderSortDirection()) }}</button>
+              <button type="button" class="table__sort" (click)="sortOrdersBy('status')">Estado{{ getSortIndicator('status', orderSortKey(), orderSortDirection()) }}</button>
+              <span></span>
+            </div>
+            @for (order of pagedOrders(); track order.id) {
+              <div
+                class="table__row"
+                [class.table__row--confirmado]="order.status === 'Confirmado'"
+                [class.table__row--pendiente]="order.status === 'Pendiente'"
+                [class.table__row--enviado]="order.status === 'Enviado'"
+                [class.table__row--cancelado]="order.status === 'Cancelado'"
+                role="row"
+              >
+                <strong>{{ order.id }}</strong>
+                <span>{{ order.date | date:'short' }}</span>
+                <span>{{ order.itemCount }}</span>
+                <strong>{{ formatClp(order.total) }}</strong>
+                <span>{{ order.customer.name }} ({{ order.customer.email }})</span>
+                <span>{{ order.status }}</span>
+                <button type="button" class="table__view" (click)="viewOrder(order)">Ver</button>
+              </div>
+            }
+          </div>
+          <div class="pagination" aria-label="Paginación de pedidos">
+            <label class="pagination__size">
+              Mostrar
+              <select [value]="pageSize()" (change)="setPageSize($any($event.target).value)">
+                <option value="5">5</option>
+                <option value="10">10</option>
+              </select>
+              registros
+            </label>
+            <div class="pagination__controls">
+              <button type="button" (click)="goToOrdersPage(ordersPage() - 1)" [disabled]="ordersPage() === 1" aria-label="Página anterior">Anterior</button>
+              <span>Página {{ ordersPage() }} de {{ ordersTotalPages() }}</span>
+              <button type="button" (click)="goToOrdersPage(ordersPage() + 1)" [disabled]="ordersPage() === ordersTotalPages()" aria-label="Página siguiente">Siguiente</button>
+            </div>
+          </div>
+        }
+      }
+
+    </section>
+
+    <aside class="dash__side">
+      <div class="dash__panel-head">
+        <h2>Top 5 más vendidos</h2>
+      </div>
+      <ul class="top-list">
+        @for (product of topProducts(); track product.name; let i = $index) {
+          <li class="top-list__item">
+            <div class="top-list__row">
+              <span class="top-list__rank">{{ i + 1 }}</span>
+              <span class="top-list__name">{{ product.name }}</span>
+              <span class="top-list__units">{{ product.unitsSold }}</span>
+            </div>
+            <div class="top-list__bar">
+              <div
+                class="top-list__bar-fill"
+                [style.width.%]="(product.unitsSold / maxUnitsSold()) * 100"
+              ></div>
+            </div>
+          </li>
+        }
+      </ul>
+    </aside>
+  </div>
+
+  @if (editing()) {
+    <div class="modal-backdrop" (click)="cancelEdit()"></div>
+    <section class="modal" aria-label="Editor de producto">
+      <div class="modal__head">
+        <h2>{{ selectedProduct() ? 'Editar producto' : 'Nuevo producto' }}</h2>
+        <button type="button" class="modal__close" (click)="cancelEdit()" aria-label="Cerrar">×</button>
+      </div>
+
+      @if (formError()) {
+        <div class="modal__feedback" role="alert">{{ formError() }}</div>
+      }
+
+      <form [formGroup]="productForm" (ngSubmit)="saveProduct()" class="modal__form">
+        <label>
+          Código
+          <input type="text" formControlName="code" />
+        </label>
+        <label>
+          Nombre
+          <input type="text" formControlName="name" />
+        </label>
+        <label>
+          Categoría
+          <input type="text" formControlName="category" />
+        </label>
+        <label>
+          Precio
+          <input type="number" min="0" formControlName="price" />
+        </label>
+        <label>
+          Stock
+          <input type="number" min="0" formControlName="stock" />
+        </label>
+        <label class="modal__field--wide">
+          Imagen (URL)
+          <input type="url" formControlName="imageUrl" />
+          @if (getFormImageUrl(); as imageUrl) {
+            <img class="modal__image-preview" [src]="imageUrl" alt="Vista previa del producto" />
+          } @else {
+            <span class="modal__image-placeholder">La imagen aparecerá aquí</span>
+          }
+        </label>
+        <label class="modal__field--wide">
+          Descripción
+          <textarea rows="3" formControlName="description"></textarea>
+        </label>
+
+        <div class="modal__actions">
+          <button type="button" class="modal__cancel" (click)="cancelEdit()">Cancelar</button>
+          <button type="submit" class="modal__save" [disabled]="saving()">
+            {{ saving() ? 'Guardando...' : 'Guardar producto' }}
+          </button>
+        </div>
+      </form>
+    </section>
+  }
+
+  @if (selectedOrder(); as order) {
+    <div class="modal-backdrop" (click)="closeOrder()"></div>
+    <section class="modal order-modal" aria-label="Detalle del pedido">
+      <div class="modal__head">
+        <div>
+          <span class="modal__eyebrow">Detalle del pedido</span>
+          <h2>{{ order.id }}</h2>
+        </div>
+        <button type="button" class="modal__close" (click)="closeOrder()" aria-label="Cerrar">×</button>
+      </div>
+
+      <div class="order-detail">
+        <div class="order-detail__summary">
+          <div><span>Cliente</span><strong>{{ order.customer.name }}</strong><small>{{ order.customer.email }}</small></div>
+          <div><span>Fecha</span><strong>{{ order.date | date:'medium' }}</strong></div>
+          <div><span>Total</span><strong>{{ formatClp(order.total) }}</strong></div>
+        </div>
+
+        @if (selectedOrderEditable()) {
+          <label class="order-detail__status">
+            Estado del pedido
+            <select [value]="selectedOrderStatus()" (change)="setOrderStatus($any($event.target).value)">
+              <option value="Pendiente">Pendiente</option>
+              <option value="Confirmado">Confirmado</option>
+              <option value="Enviado">Enviado</option>
+              <option value="Cancelado">Cancelado</option>
+            </select>
+          </label>
+        }
+
+        <div class="order-detail__items">
+          <h3>Productos del pedido</h3>
+          @if (order.items?.length) {
+            @for (item of getPagedOrderItems(order); track item.productId) {
+              <div class="order-detail__item">
+                @if (getOrderItemImageUrl(item.imageUrl); as imageUrl) {
+                  <img class="order-detail__item-image" [src]="imageUrl" [alt]="item.name" loading="lazy" />
+                } @else {
+                  <span class="order-detail__item-placeholder">Sin imagen</span>
+                }
+                <div><strong>{{ item.name }}</strong><small>{{ item.quantity }} × ${{ item.price | number:'1.0-0' }}</small></div>
+                <strong>${{ item.subtotal | number:'1.0-0' }}</strong>
+              </div>
+            }
+            @if (getOrderItemTotalPages(order) > 1) {
+              <div class="order-detail__pagination">
+                <button type="button" (click)="goToOrderItemPage(order, getOrderItemPage(order) - 1)" [disabled]="getOrderItemPage(order) === 1">Anterior</button>
+                <span>Página {{ getOrderItemPage(order) }} de {{ getOrderItemTotalPages(order) }}</span>
+                <button type="button" (click)="goToOrderItemPage(order, getOrderItemPage(order) + 1)" [disabled]="getOrderItemPage(order) === getOrderItemTotalPages(order)">Siguiente</button>
+              </div>
+            }
+          } @else {
+            <p class="order-detail__empty">Este pedido antiguo no tiene el detalle de sus productos guardado.</p>
+          }
+        </div>
+
+        <div class="modal__actions">
+          <button type="button" class="modal__cancel" (click)="closeOrder()">Cerrar</button>
+          @if (selectedOrderEditable()) {
+            <button type="button" class="modal__save" (click)="saveOrderStatus()">Guardar estado</button>
+          }
+        </div>
+      </div>
+    </section>
+  }
 </div>

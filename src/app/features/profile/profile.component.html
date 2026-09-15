@@ -1,0 +1,112 @@
+<div class="profile-page">
+  <section class="profile-hero">
+    <div class="profile-hero__avatar">{{ user()?.name?.charAt(0)?.toUpperCase() || '?' }}</div>
+    <div>
+      <p class="profile-eyebrow">Mi cuenta</p>
+      <h1>{{ user()?.name || 'Usuario' }}</h1>
+      <p class="profile-hero__email">{{ user()?.email || 'No hay una sesión activa' }}</p>
+    </div>
+  </section>
+
+  @if (!user()) {
+    <section class="profile-empty">
+      <h2>Inicia sesión para ver tu perfil</h2>
+      <p>Cuando ingreses con Azure podrás consultar tus pedidos y sus detalles.</p>
+    </section>
+  } @else {
+    <section class="profile-stats" aria-label="Resumen de la cuenta">
+      <article class="profile-stat">
+        <span class="profile-stat__label">Pedidos realizados</span>
+        <strong>{{ orders().length }}</strong>
+      </article>
+      <article class="profile-stat">
+        <span class="profile-stat__label">Total comprado</span>
+        <strong>${{ totalSpent() | number:'1.0-0' }}</strong>
+      </article>
+      <article class="profile-stat">
+        <span class="profile-stat__label">Último pedido</span>
+        <strong>{{ orders()[0]?.date ? (orders()[0].date | date:'shortDate') : 'Sin pedidos' }}</strong>
+      </article>
+    </section>
+
+    <section class="profile-orders">
+      <div class="profile-section-heading">
+        <div>
+          <p class="profile-eyebrow">Historial personal</p>
+          <h2>Mis pedidos</h2>
+        </div>
+        <label class="profile-pagination__size">
+          Mostrar
+          <select [value]="ordersPageSize()" (change)="setOrdersPageSize($any($event.target).value)">
+            <option value="5">5</option>
+            <option value="10">10</option>
+          </select>
+          de {{ orders().length }} pedidos
+        </label>
+      </div>
+
+      @if (orders().length === 0) {
+        <div class="profile-empty profile-empty--orders">
+          <h3>Aún no tienes pedidos</h3>
+          <p>Cuando completes una compra aparecerá aquí con todos sus productos.</p>
+        </div>
+      } @else {
+        <div class="profile-order-list">
+          @for (order of pagedOrders(); track order.id; let orderIndex = $index) {
+            <article class="profile-order" [class.profile-order--last]="$last">
+              <div class="profile-order__topline">
+                <div>
+                  <span class="profile-order__code">{{ order.id }}</span>
+                  <span class="profile-order__date">{{ order.date | date:'medium' }}</span>
+                </div>
+                <span class="profile-order__status" [class]="'profile-order__status--' + order.status.toLowerCase()">
+                  {{ order.status }}
+                </span>
+              </div>
+
+              <div class="profile-order__summary">
+                <span>{{ order.itemCount }} {{ order.itemCount === 1 ? 'producto' : 'productos' }}</span>
+                <strong>${{ order.total | number:'1.0-0' }}</strong>
+              </div>
+
+              @if (order.items?.length) {
+                <div class="profile-order__items">
+                  @for (item of getPagedOrderItems(order); track item.productId) {
+                    <div class="profile-order__item">
+                      @if (getImageUrl(item.imageUrl); as imageUrl) {
+                        <img [src]="imageUrl" [alt]="item.name" loading="lazy" />
+                      } @else {
+                        <span class="profile-order__item-placeholder">Sin imagen</span>
+                      }
+                      <div>
+                        <strong>{{ item.name }}</strong>
+                        <small>{{ item.quantity }} × ${{ item.price | number:'1.0-0' }}</small>
+                      </div>
+                      <b>${{ item.subtotal | number:'1.0-0' }}</b>
+                    </div>
+                  }
+                </div>
+                @if (getOrderItemTotalPages(order) > 1) {
+                  <div class="profile-items-pagination">
+                    <button type="button" (click)="goToOrderItemPage(order, getOrderItemPage(order) - 1)" [disabled]="getOrderItemPage(order) === 1">Anterior</button>
+                    <span>Página {{ getOrderItemPage(order) }} de {{ getOrderItemTotalPages(order) }}</span>
+                    <button type="button" (click)="goToOrderItemPage(order, getOrderItemPage(order) + 1)" [disabled]="getOrderItemPage(order) === getOrderItemTotalPages(order)">Siguiente</button>
+                  </div>
+                }
+              } @else {
+                <p class="profile-order__legacy">Este pedido fue creado antes de guardar el detalle de productos.</p>
+              }
+            </article>
+          }
+        </div>
+        @if (ordersTotalPages() > 1) {
+          <div class="profile-orders-pagination">
+            <button type="button" (click)="goToOrdersPage(ordersPage() - 1)" [disabled]="ordersPage() === 1">Anterior</button>
+            <span>Página {{ ordersPage() }} de {{ ordersTotalPages() }}</span>
+            <button type="button" (click)="goToOrdersPage(ordersPage() + 1)" [disabled]="ordersPage() === ordersTotalPages()">Siguiente</button>
+          </div>
+        }
+      }
+    </section>
+  }
+</div>

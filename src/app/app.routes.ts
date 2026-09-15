@@ -6,6 +6,7 @@ import { ProductListComponent } from './features/products/product-list.component
 import { DashboardComponent } from './features/dashboard/dashboard.component';
 import { Home } from './features/home/home';
 import { CartPageComponent } from './features/cart/cart-page.component';
+import { ProfileComponent } from './features/profile/profile.component';
 import { adminGuard } from './core/guards/admin.guard';
 
 export const routes: Routes = [
@@ -14,6 +15,7 @@ export const routes: Routes = [
   { path: 'auth/register', component: Register },
   { path: 'products', component: ProductListComponent },
   { path: 'cart', component: CartPageComponent },
+  { path: 'profile', component: ProfileComponent },
   {
     path: 'dashboard',
     component: DashboardComponent,
