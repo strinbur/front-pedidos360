@@ -7,6 +7,18 @@
       </span>
     </a>
 
+    <!-- Navegación principal -->
+    <nav class="header__nav">
+      <a routerLink="/products" routerLinkActive="header__nav-link--active" class="header__nav-link">
+        Productos
+      </a>
+      @if (isAdmin()) {
+        <a routerLink="/dashboard" routerLinkActive="header__nav-link--active" class="header__nav-link">
+          Dashboard
+        </a>
+      }
+    </nav>
+
     <div class="header__actions">
 
       <!-- Usuario con dropdown -->
@@ -18,16 +30,29 @@
           [attr.aria-expanded]="isUserMenuOpen()"
           aria-label="Cuenta de usuario"
         >
-          <app-icon name="user" [size]="20"></app-icon>
-          <span class="header__icon-btn-label">Cuenta</span>
+          @if (isLoggedIn()) {
+            <span class="header__avatar">{{ userInitial() }}</span>
+          } @else {
+            <app-icon name="user" [size]="20"></app-icon>
+            <span class="header__icon-btn-label">Cuenta</span>
+          }
           <app-icon name="chevron-down" [size]="14" class="header__chevron"></app-icon>
         </button>
 
         @if (isUserMenuOpen()) {
           <div class="header__dropdown">
             <div class="header__dropdown-inner">
-              <a routerLink="/auth/login" class="header__dropdown-item" (click)="isUserMenuOpen.set(false)">Iniciar sesión</a>
-              <a routerLink="/auth/register" class="header__dropdown-item" (click)="isUserMenuOpen.set(false)">Registrarse</a>
+              @if (isLoggedIn()) {
+                <div class="header__dropdown-user">
+                  <span class="header__dropdown-user-name">{{ userName() }}</span>
+                </div>
+                <button type="button" class="header__dropdown-item header__dropdown-item--button" (click)="logout()">
+                  Cerrar sesión
+                </button>
+              } @else {
+                <a routerLink="/auth/login" class="header__dropdown-item" (click)="isUserMenuOpen.set(false)">Iniciar sesión</a>
+                <a routerLink="/auth/register" class="header__dropdown-item" (click)="isUserMenuOpen.set(false)">Registrarse</a>
+              }
             </div>
           </div>
         }
@@ -37,12 +62,12 @@
       <span class="header__divider"></span>
 
       <!-- Carrito -->
-      <button class="header__icon-btn header__cart" type="button" aria-label="Carrito de compras">
+      <a routerLink="/cart" class="header__icon-btn header__cart" aria-label="Carrito de compras">
         <app-icon name="cart" [size]="20"></app-icon>
         @if (cartCount() > 0) {
           <span class="header__cart-badge">{{ cartCount() }}</span>
         }
-      </button>
+      </a>
 
     </div>
   </div>

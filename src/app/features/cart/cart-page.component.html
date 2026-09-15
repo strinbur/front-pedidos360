@@ -1,0 +1,104 @@
+<div class="cart-page">
+  <header class="cart-header">
+    <h1>Carrito</h1>
+  </header>
+
+  <div *ngIf="errorMessage()" class="cart-error">{{ errorMessage() }}</div>
+
+  <div class="cart-layout" *ngIf="items().length > 0; else emptyCart">
+    <section class="cart-items">
+      <div class="cart-items__head">
+        <span class="cart-col cart-col--product">Producto</span>
+        <span class="cart-col cart-col--qty">Cantidad</span>
+        <span class="cart-col cart-col--price">Precio</span>
+        <span class="cart-col cart-col--total">Total</span>
+        <span class="cart-col cart-col--action"></span>
+      </div>
+
+      <article class="cart-item" *ngFor="let item of items()">
+        <div class="cart-col cart-col--product cart-item__product">
+          <div class="cart-item__image-wrap">
+            <img
+              *ngIf="getImageUrl(item.product.imageUrl) as imageUrl"
+              [src]="imageUrl"
+              [alt]="item.product.name"
+              class="cart-item__image"
+            />
+            <span *ngIf="!getImageUrl(item.product.imageUrl)" class="cart-item__image-placeholder">Sin imagen</span>
+          </div>
+          <div class="cart-item__info">
+            <p class="cart-item__name">{{ item.product.name }}</p>
+            <p class="cart-item__code">{{ item.product.code }}</p>
+          </div>
+        </div>
+
+        <div class="cart-col cart-col--qty cart-item__qty">
+          <button
+            type="button"
+            class="cart-item__qty-btn"
+            (click)="decrement(item.product.id!, item.quantity)"
+          >
+            −
+          </button>
+          <input
+            type="number"
+            class="cart-item__qty-input"
+            [value]="item.quantity"
+            [max]="item.product.stock"
+            min="1"
+            (change)="onQuantityInput(item.product.id!, $any($event.target).value, item.product.stock)"
+          />
+          <button
+            type="button"
+            class="cart-item__qty-btn"
+            (click)="increment(item.product.id!, item.quantity, item.product.stock)"
+            [disabled]="item.quantity >= item.product.stock"
+          >
+            +
+          </button>
+        </div>
+
+        <div class="cart-col cart-col--price cart-item__price">
+          ${{ item.product.price | number:'1.0-0' }}
+        </div>
+
+        <div class="cart-col cart-col--total cart-item__total">
+          ${{ item.product.price * item.quantity | number:'1.0-0' }}
+        </div>
+
+        <div class="cart-col cart-col--action cart-item__action">
+          <button type="button" class="cart-item__remove" (click)="removeItem(item.product.id!)" aria-label="Eliminar producto">
+            <app-icon name="trash" [size]="18"></app-icon>
+          </button>
+        </div>
+      </article>
+    </section>
+
+    <aside class="cart-summary">
+      <h2 class="cart-summary__title">Total</h2>
+
+      <div class="cart-summary__row">
+        <span>Subtotal</span>
+        <span>${{ subtotal() | number:'1.0-0' }}</span>
+      </div>
+
+      <div class="cart-summary__row cart-summary__row--total">
+        <span>Total</span>
+        <span>${{ subtotal() | number:'1.0-0' }}</span>
+      </div>
+
+      <button
+        type="button"
+        class="cart-summary__checkout"
+        (click)="checkout()"
+        [disabled]="isProcessing()"
+      >
+        {{ isProcessing() ? 'Procesando...' : 'Pagar' }}
+      </button>
+    </aside>
+  </div>
+
+  <ng-template #emptyCart>
+    <p class="cart-empty">Tu carrito está vacío.</p>
+  </ng-template>
+</div>
