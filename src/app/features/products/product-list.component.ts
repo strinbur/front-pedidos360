@@ -1,7 +1,9 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ProductService } from './product.service';
 import { Product } from '../../models/product.model';
+import { environment } from '../../../enviroments/enviroment.development';
+import { CartService } from '../cart/cart.service';
 
 @Component({
   selector: 'app-product-list',
@@ -12,9 +14,21 @@ import { Product } from '../../models/product.model';
 })
 export class ProductListComponent implements OnInit {
   private productService = inject(ProductService);
+  private cartService = inject(CartService);
 
   products = signal<Product[]>([]);
   error = signal<string | null>(null);
+  activeCategory = signal('Todos');
+  categories = computed(() => [
+    'Todos',
+    ...new Set(this.products().map((product) => product.category).filter(Boolean))
+  ]);
+  filteredProducts = computed(() => {
+    const category = this.activeCategory();
+    return category === 'Todos'
+      ? this.products()
+      : this.products().filter((product) => product.category === category);
+  });
 
   ngOnInit(): void {
     this.load();
@@ -28,7 +42,24 @@ export class ProductListComponent implements OnInit {
   }
 
   addToCart(product: Product): void {
-    console.log('Agregado al carrito:', product);
-    // TODO: acá conectaremos la lógica real del carrito más adelante
+    this.cartService.addToCart(product);
+  }
+
+  selectCategory(category: string): void {
+    this.activeCategory.set(category);
+  }
+
+  getImageUrl(product: Product): string | null {
+    const image = product.imageUrl ?? product.image;
+
+    if (!image) {
+      return null;
+    }
+
+    if (image.startsWith('data:') || image.startsWith('http://') || image.startsWith('https://')) {
+      return image;
+    }
+
+    return `${environment.apiUrl}/${image.replace(/^\/+/, '')}`;
   }
 }

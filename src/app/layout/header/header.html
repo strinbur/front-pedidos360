@@ -62,12 +62,12 @@
       <span class="header__divider"></span>
 
       <!-- Carrito -->
-      <button class="header__icon-btn header__cart" type="button" aria-label="Carrito de compras">
+      <a routerLink="/cart" class="header__icon-btn header__cart" aria-label="Carrito de compras">
         <app-icon name="cart" [size]="20"></app-icon>
         @if (cartCount() > 0) {
           <span class="header__cart-badge">{{ cartCount() }}</span>
         }
-      </button>
+      </a>
 
     </div>
   </div>

@@ -1,6 +1,6 @@
 .header {
-  background-color: #E3D2C1;
-  border-bottom: 1px solid rgba(43, 32, 22, 0.12);
+  background-color: #fffaf4;
+  border-bottom: 1px solid #eadbcd;
   position: sticky;
   top: 0;
   z-index: 100;
@@ -10,9 +10,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  max-width: 1100px;
+  max-width: 1180px;
   margin: 0 auto;
-  padding: 0.85rem 1.5rem;
+  padding: 1.15rem 1.5rem;
 }
 
 /* Marca / Logo */
@@ -23,17 +23,18 @@
 }
 
 .header__logo {
-  font-size: 1.45rem;
-  font-weight: 800;
-  letter-spacing: -0.02em;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.55rem;
+  font-weight: 400;
+  letter-spacing: 0;
 }
 
 .header__logo-main {
-  color: #2b2016;
+  color: #4b3023;
 }
 
 .header__logo-accent {
-  color: #a8683f;
+  color: #a65f3e;
 }
 
 /* Acciones */

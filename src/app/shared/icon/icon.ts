@@ -4,7 +4,7 @@ export type IconName =
   | 'whatsapp' | 'facebook' | 'instagram'
   | 'mail' | 'phone' | 'map-pin' | 'login' | 'cart'
   | 'user' | 'chevron-down'
-  | 'lock' | 'eye' | 'eye-off';
+  | 'lock' | 'eye' | 'eye-off' | 'trash';
 
 @Component({
   selector: 'app-icon',

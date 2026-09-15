@@ -1,0 +1,91 @@
+<main class="home-page">
+	<section class="home-hero">
+		<div class="home-hero__copy">
+			<p class="home-eyebrow">Una tradición que se comparte</p>
+			<h1>El sabor de los momentos <em>hechos en casa.</em></h1>
+			<p>
+				Dulces preparados con paciencia, recetas queridas y ese detalle especial que convierte
+				cualquier tarde en una celebración.
+			</p>
+			<a class="home-button" routerLink="/products">Ver todos los productos</a>
+		</div>
+		<div class="home-hero__mark" aria-hidden="true">
+			<span>Desde</span>
+			<strong>1968</strong>
+			<small>una historia dulce</small>
+		</div>
+	</section>
+
+	<section class="home-featured" aria-labelledby="featured-title">
+		<div class="home-section-heading">
+			<div>
+				<p class="home-eyebrow">Para disfrutar hoy</p>
+				<h2 id="featured-title">Nuestros destacados</h2>
+			</div>
+			<a class="home-text-link" routerLink="/products">Ver catálogo <span aria-hidden="true">→</span></a>
+		</div>
+
+		<div *ngIf="error()" class="home-message">{{ error() }}</div>
+
+		<div *ngIf="featuredProducts().length > 0" class="home-carousel">
+			<article class="home-featured-card">
+				<div class="home-featured-card__image">
+					<img
+						*ngIf="getImageUrl(featuredProducts()[activeIndex()]) as imageUrl"
+						[src]="imageUrl"
+						[alt]="featuredProducts()[activeIndex()].name"
+					/>
+					<span *ngIf="!getImageUrl(featuredProducts()[activeIndex()])">Sin imagen</span>
+				</div>
+				<div class="home-featured-card__content">
+					<p class="home-card-category">{{ featuredProducts()[activeIndex()].category }}</p>
+					<h3>{{ featuredProducts()[activeIndex()].name }}</h3>
+					<p>{{ featuredProducts()[activeIndex()].description }}</p>
+					<div class="home-featured-card__footer">
+						<strong>${{ featuredProducts()[activeIndex()].price | number:'1.0-0' }}</strong>
+						<a class="home-button home-button--small" routerLink="/products">Ver producto</a>
+					</div>
+				</div>
+			</article>
+
+			<div class="home-carousel__controls" *ngIf="featuredProducts().length > 1">
+				<button type="button" aria-label="Producto anterior" (click)="previous()">←</button>
+				<div class="home-carousel__dots">
+					<button
+						*ngFor="let product of featuredProducts(); let index = index"
+						type="button"
+						[attr.aria-label]="'Ver ' + product.name"
+						[class.home-carousel__dot--active]="activeIndex() === index"
+						class="home-carousel__dot"
+						(click)="select(index)"
+					></button>
+				</div>
+				<button type="button" aria-label="Siguiente producto" (click)="next()">→</button>
+			</div>
+		</div>
+	</section>
+
+	<section class="home-story">
+		<div class="home-story__number">01</div>
+		<div>
+			<p class="home-eyebrow">Una historia para compartir</p>
+			<h2>La tradición vive en cada detalle.</h2>
+			<p>
+				Cuenta la historia que todo comenzó en una cocina pequeña, donde una familia guardaba
+				sus mejores recetas para las visitas del domingo. Con los años, esos sabores cruzaron
+				la mesa y llegaron a nuevas celebraciones, siempre con la misma idea: preparar algo
+				rico es una forma sencilla de decir “te estaba esperando”.
+			</p>
+			<p>
+				Hoy seguimos horneando con ese espíritu: ingredientes nobles, manos atentas y dulces
+				que hacen espacio para una conversación más larga.
+			</p>
+		</div>
+	</section>
+
+	<section class="home-cta">
+		<p class="home-eyebrow">Tu próxima celebración empieza aquí</p>
+		<h2>Algo dulce siempre encuentra su momento.</h2>
+		<a class="home-button" routerLink="/products">Explorar productos</a>
+	</section>
+</main>

@@ -1,16 +1,70 @@
 <div class="products-page">
-  <h2 class="products-title">Nuestros productos</h2>
+  <section class="products-hero">
+    <div class="products-hero__copy">
+      <p class="products-hero__eyebrow">Hecho con dedicación</p>
+      <h1>Pequeños gustos,<br /><em>grandes momentos.</em></h1>
+      <p class="products-hero__intro">
+        Descubre nuestra selección de dulces preparados para compartir, regalar y disfrutar sin apuro.
+      </p>
+    </div>
+    <div class="products-hero__seal">
+      <span>Pedidos</span>
+      <strong>360</strong>
+      <small>dulce · cercano · simple</small>
+    </div>
+  </section>
 
-  <div *ngIf="error()" class="error-message">{{ error() }}</div>
-
-  <div class="products-grid">
-    <div class="product-card" *ngFor="let p of products()">
-      <div class="product-card__category">{{ p.category }}</div>
-      <h3 class="product-card__name">{{ p.name }}</h3>
-      <p class="product-card__price">${{ p.price }}</p>
-      <button class="product-card__button" (click)="addToCart(p)">
-        Agregar al carrito
+  <section class="products-categories" aria-label="Categorías de productos">
+    <p class="products-section-label">Explora por categoría</p>
+    <div class="products-categories__list">
+      <button
+        *ngFor="let category of categories()"
+        type="button"
+        [class.products-categories__item--active]="activeCategory() === category"
+        class="products-categories__item"
+        (click)="selectCategory(category)"
+      >
+        {{ category }}
       </button>
     </div>
-  </div>
+  </section>
+
+  <section id="catalogo" class="products-catalog">
+    <div class="products-catalog__heading">
+      <div>
+        <p class="products-section-label">Nuestra selección</p>
+        <h2 class="products-title">Dulces para celebrar</h2>
+      </div>
+      <span class="products-catalog__count">{{ filteredProducts().length }} productos</span>
+    </div>
+
+    <div *ngIf="error()" class="error-message">{{ error() }}</div>
+
+    <div class="products-grid">
+      <article class="product-card" *ngFor="let p of filteredProducts()">
+        <div class="product-card__image-container">
+          <img
+            *ngIf="getImageUrl(p) as imageUrl"
+            class="product-card__image"
+            [src]="imageUrl"
+            [alt]="p.name"
+            loading="lazy"
+          />
+          <span *ngIf="!getImageUrl(p)" class="product-card__image-placeholder">Sin imagen</span>
+          <span class="product-card__tag">{{ p.category }}</span>
+        </div>
+        <div class="product-card__body">
+          <h3 class="product-card__name">{{ p.name }}</h3>
+          <p class="product-card__description">{{ p.description }}</p>
+          <div class="product-card__footer">
+            <p class="product-card__price">${{ p.price | number:'1.0-0' }}</p>
+            <button class="product-card__button" type="button" (click)="addToCart(p)">Agregar</button>
+          </div>
+        </div>
+      </article>
+    </div>
+    <p *ngIf="filteredProducts().length === 0 && !error()" class="products-empty">
+      Todavía no hay productos en esta categoría.
+    </p>
+  </section>
 </div>
