@@ -46,6 +46,9 @@
                 <div class="header__dropdown-user">
                   <span class="header__dropdown-user-name">{{ userName() }}</span>
                 </div>
+                <a routerLink="/profile" class="header__dropdown-item" (click)="isUserMenuOpen.set(false)">
+                  Mi perfil
+                </a>
                 <button type="button" class="header__dropdown-item header__dropdown-item--button" (click)="logout()">
                   Cerrar sesión
                 </button>

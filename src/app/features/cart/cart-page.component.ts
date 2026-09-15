@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { Icon } from '../../shared/icon/icon';
 import { CartService } from './cart.service';
 import { CartApiService } from './cart-api.service';
+import { MsalAuthService } from '../../core/msal-auth/msal-auth.service';
 import { environment } from '../../../enviroments/enviroment.development';
 
 @Component({
@@ -16,6 +17,7 @@ import { environment } from '../../../enviroments/enviroment.development';
 export class CartPageComponent implements OnInit {
   private cartService = inject(CartService);
   private cartApiService = inject(CartApiService);
+  private msalAuth = inject(MsalAuthService);
   private router = inject(Router);
 
   items = this.cartService.cartItems;
@@ -84,10 +86,21 @@ export class CartPageComponent implements OnInit {
     };
 
     this.cartApiService.calculate(request).subscribe({
-      next: () => {
+      next: (response) => {
+        const user = this.msalAuth.getUser();
+
+        if (!user) {
+          this.isProcessing.set(false);
+          this.errorMessage.set('Debes iniciar sesión antes de pagar.');
+          return;
+        }
+
+        const order = this.cartService.checkout(response.total, {
+          name: user.name ?? user.email,
+          email: user.email
+        });
         this.isProcessing.set(false);
-        this.cartService.clear();
-        this.router.navigate(['/']);
+        this.router.navigate(['/'], { state: { orderId: order.id } });
       },
       error: (err) => {
         this.isProcessing.set(false);
