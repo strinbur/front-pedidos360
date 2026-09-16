@@ -1,5 +1,5 @@
 export const environment = {
-  production: false,
-  apiUrl: 'http://localhost:8081',
-  cartApiUrl: 'http://localhost:8082'
+  production: true,
+  apiUrl: 'https://fx2dvtjo0f.execute-api.us-east-1.amazonaws.com/api/product',
+  cartApiUrl: 'https://fx2dvtjo0f.execute-api.us-east-1.amazonaws.com/api/cart'
 };
