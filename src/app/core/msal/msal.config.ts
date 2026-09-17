@@ -57,9 +57,11 @@ export function MSALInterceptorConfigFactory(): MsalInterceptorConfiguration {
 
   // Ruta base exacta: GET (listar todos) y POST (crear)
   protectedResourceMap.set('http://localhost:8081/products', productsRules);
-
+  protectedResourceMap.set('https://fx2dvtjo0f.execute-api.us-east-1.amazonaws.com/api/product/products', productsRules);
   // Subrutas: GET por id/code, PUT y DELETE por id
   protectedResourceMap.set('http://localhost:8081/products/*', productsRules);
+  
+  protectedResourceMap.set('https://fx2dvtjo0f.execute-api.us-east-1.amazonaws.com/api/product/products/*', productsRules);
 
   return {
     interactionType: InteractionType.Redirect,
