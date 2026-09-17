@@ -10,6 +10,7 @@ export function setSkipRedirectNavigation(skip: boolean): void {
 }
 
 // Scope custom expuesto por nuestra propia API (microservicio product) en Azure AD.
+// Con esto el token que llega al backend tiene audience = nuestra API, no Microsoft Graph.
 const PRODUCT_API_SCOPE = 'api://8d14a1ab-3758-45e4-b409-a95f6b7442e3/access_as_user';
 
 export function MSALInstanceFactory(): PublicClientApplication {
