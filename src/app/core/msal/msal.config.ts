@@ -14,7 +14,7 @@ export function MSALInstanceFactory(): PublicClientApplication {
     auth: {
       clientId: '8d14a1ab-3758-45e4-b409-a95f6b7442e3',
       authority: 'https://login.microsoftonline.com/f2a31af8-f420-417d-b585-34f31769c272',
-      redirectUri: 'http://localhost:4200',
+      redirectUri: window.location.origin,
       onRedirectNavigate: () => {
         if (skipNextRedirectNavigation) {
           skipNextRedirectNavigation = false; // se resetea automáticamente para la próxima vez
