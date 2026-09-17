@@ -58,7 +58,7 @@
 
 .register-form__row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 1rem;
 }
 
@@ -83,6 +83,7 @@
   padding: 0 0.85rem;
   background-color: #FFF8F0;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  box-sizing: border-box;
 }
 
 .form-field__control:focus-within {
