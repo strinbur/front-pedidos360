@@ -12,4 +12,8 @@ export class CartApiService {
   calculate(request: CartCalculateRequest): Observable<CartCalculateResponse> {
     return this.http.post<CartCalculateResponse>(`${this.baseUrl}/calculate`, request);
   }
+
+  checkout(request: CartCalculateRequest): Observable<CartCalculateResponse> {
+    return this.http.post<CartCalculateResponse>(`${this.baseUrl}/checkout`, request);
+  }
 }
