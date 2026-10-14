@@ -85,7 +85,7 @@ export class CartPageComponent implements OnInit {
       }))
     };
 
-    this.cartApiService.calculate(request).subscribe({
+    this.cartApiService.checkout(request).subscribe({
       next: (response) => {
         const user = this.msalAuth.getUser();
 
