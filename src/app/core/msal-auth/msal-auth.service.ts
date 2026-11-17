@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { MsalService } from '@azure/msal-angular';
-import { setSkipRedirectNavigation } from '../msal/msal.config';
+import { InteractionRequiredAuthError } from '@azure/msal-browser';
+import { PRODUCT_API_SCOPE, setSkipRedirectNavigation } from '../msal/msal.config';
 
 @Injectable({ providedIn: 'root' })
 export class MsalAuthService {
@@ -35,5 +36,29 @@ export class MsalAuthService {
     const account = this.msalService.instance.getAllAccounts()[0];
     const roles = (account?.idTokenClaims as any)?.['roles'] as string[] | undefined;
     return roles?.includes(role) ?? false;
+  }
+
+  // Token de acceso para nuestra API (lo usan las estadísticas y el SSE, que van con fetch).
+  // Si el token venció y no se puede renovar en silencio, MSAL redirige a iniciar sesión.
+  async getApiToken(): Promise<string> {
+    const account = this.msalService.instance.getAllAccounts()[0];
+    if (!account) {
+      throw new Error('Sin sesión activa');
+    }
+    try {
+      const result = await this.msalService.instance.acquireTokenSilent({
+        scopes: [PRODUCT_API_SCOPE],
+        account
+      });
+      return result.accessToken;
+    } catch (e) {
+      if (e instanceof InteractionRequiredAuthError) {
+        await this.msalService.instance.acquireTokenRedirect({
+          scopes: [PRODUCT_API_SCOPE],
+          account
+        });
+      }
+      throw e;
+    }
   }
 }
