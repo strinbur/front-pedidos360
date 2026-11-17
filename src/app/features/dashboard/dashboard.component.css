@@ -795,3 +795,63 @@
     animation: none;
   }
 }
+
+/* Alertas de stock en vivo */
+
+.live {
+  font-size: 11px;
+  color: var(--ink-soft);
+}
+
+.live::before {
+  content: '';
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 6px;
+  border-radius: 50%;
+  background: var(--ink-soft);
+  opacity: 0.5;
+}
+
+.live--on { color: var(--success); }
+.live--on::before { background: var(--success); opacity: 1; }
+
+.dash__message--alert {
+  color: var(--warning);
+  background: #f6ecde;
+}
+
+.dash__panel-head--spaced {
+  border-top: 1px solid var(--line);
+}
+
+.alert-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 20px 8px;
+}
+
+.alert-list__item {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 0 10px 10px;
+  border-bottom: 1px solid var(--line);
+  border-left: 3px solid var(--warning);
+  font-size: 12.5px;
+}
+
+.alert-list__item div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.alert-list__item small { font-size: 11px; color: var(--ink-soft); }
+.alert-list__badge { font-size: 11px; color: var(--warning); }
+.alert-list__stock { font-weight: 600; font-size: 13px; }
+.alert-list__item--out { border-left-color: var(--danger); }
+.alert-list__item--out .alert-list__badge { color: var(--danger); }

@@ -11,14 +11,14 @@ export function setSkipRedirectNavigation(skip: boolean): void {
 
 // Scope custom expuesto por nuestra propia API (microservicio product) en Azure AD.
 // Con esto el token que llega al backend tiene audience = nuestra API, no Microsoft Graph.
-const PRODUCT_API_SCOPE = 'api://8d14a1ab-3758-45e4-b409-a95f6b7442e3/access_as_user';
+export const PRODUCT_API_SCOPE = 'api://8d14a1ab-3758-45e4-b409-a95f6b7442e3/access_as_user';
 
 export function MSALInstanceFactory(): PublicClientApplication {
   return new PublicClientApplication({
     auth: {
       clientId: '8d14a1ab-3758-45e4-b409-a95f6b7442e3',
       authority: 'https://login.microsoftonline.com/f2a31af8-f420-417d-b585-34f31769c272',
-      redirectUri: 'http://localhost:4200',
+      redirectUri: window.location.origin,
       onRedirectNavigate: () => {
         if (skipNextRedirectNavigation) {
           skipNextRedirectNavigation = false; // se resetea automáticamente para la próxima vez
@@ -57,9 +57,11 @@ export function MSALInterceptorConfigFactory(): MsalInterceptorConfiguration {
 
   // Ruta base exacta: GET (listar todos) y POST (crear)
   protectedResourceMap.set('http://localhost:8081/products', productsRules);
+  protectedResourceMap.set('https://fx2dvtjo0f.execute-api.us-east-1.amazonaws.com/api/product/products', productsRules);
 
   // Subrutas: GET por id/code, PUT y DELETE por id
   protectedResourceMap.set('http://localhost:8081/products/*', productsRules);
+  protectedResourceMap.set('https://fx2dvtjo0f.execute-api.us-east-1.amazonaws.com/api/product/products/*', productsRules);
 
   return {
     interactionType: InteractionType.Redirect,
