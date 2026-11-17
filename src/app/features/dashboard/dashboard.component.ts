@@ -1,9 +1,11 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { ProductService } from '../products/product.service';
+import { StatsApiService } from './stats-api.service';
 import { Product } from '../../models/product.model';
+import { StockAlert } from '../../models/stats.model';
 import { Order, OrderStatus } from '../../models/order.model';
 import { CartService } from '../cart/cart.service';
 import { environment } from '../../../enviroments/enviroment.development';
@@ -32,9 +34,10 @@ interface TopProduct {
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, OnDestroy {
   private productService = inject(ProductService);
   private cartService = inject(CartService);
+  private statsApi = inject(StatsApiService);
   private fb = inject(FormBuilder);
 
   activeSection = signal<Section>('productos');
@@ -122,13 +125,16 @@ export class DashboardComponent implements OnInit {
     { name: 'Valentina Rojas', email: 'valentina.rojas@mail.com', role: 'Cliente', status: 'Activo' }
   ]);
 
-  topProducts = signal<TopProduct[]>([
-    { name: 'Torta de chocolate', unitsSold: 128 },
-    { name: 'Pie de limon', unitsSold: 97 },
-    { name: 'Cheesecake de frutilla', unitsSold: 84 },
-    { name: 'Kuchen de manzana', unitsSold: 61 },
-    { name: 'Alfajor de manjar', unitsSold: 48 }
-  ]);
+  // ---- Top 5 y alertas: datos reales desde product (Kafka Streams) ----
+  topProducts = signal<TopProduct[]>([]);
+
+  alerts = signal<StockAlert[]>([]);
+  alertsLive = signal(false);
+  liveNotice = signal<string | null>(null);
+
+  private abort = new AbortController();
+  private topTimer?: ReturnType<typeof setInterval>;
+  private noticeTimer?: ReturnType<typeof setTimeout>;
 
   maxUnitsSold = computed(() =>
     Math.max(...this.topProducts().map((product) => product.unitsSold), 1)
@@ -164,8 +170,72 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadProducts();
+    void this.loadTopSellers();
+    void this.runAlertsStream();
+    this.topTimer = setInterval(() => void this.loadTopSellers(), 30_000);
   }
 
+  ngOnDestroy(): void {
+    this.abort.abort();
+    clearInterval(this.topTimer);
+    clearTimeout(this.noticeTimer);
+  }
+
+  private async loadTopSellers(): Promise<void> {
+    try {
+      const data = await this.statsApi.topSellers(5);
+      this.topProducts.set(data.map((t) => ({ name: t.name, unitsSold: t.units })));
+    } catch {
+      // se mantiene lo último que se mostró
+    }
+  }
+
+  private async loadAlerts(): Promise<void> {
+    try {
+      this.alerts.set(await this.statsApi.stockAlerts());
+    } catch {
+      // se mantiene lo último que se mostró
+    }
+  }
+
+  /** Mantiene el stream abierto; si se corta, reintenta cada 5 s y resincroniza el estado. */
+  private async runAlertsStream(): Promise<void> {
+    const abortSignal = this.abort.signal;
+    while (!abortSignal.aborted) {
+      try {
+        await this.loadAlerts();
+        await this.statsApi.streamAlerts(
+          { onOpen: () => this.alertsLive.set(true), onAlert: (a) => this.onAlert(a) },
+          abortSignal
+        );
+      } catch {
+        // se reintenta abajo
+      }
+      this.alertsLive.set(false);
+      if (abortSignal.aborted) {
+        break;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+    }
+  }
+
+  private onAlert(alert: StockAlert): void {
+    this.alerts.update((list) => {
+      const rest = list.filter((a) => a.productId !== alert.productId);
+      return alert.level === 'OK' ? rest : [...rest, alert].sort((a, b) => a.stock - b.stock);
+    });
+
+    const text =
+      alert.level === 'OUT' ? `"${alert.name}" se agotó`
+      : alert.level === 'LOW' ? `Stock bajo: "${alert.name}" (${alert.stock} unidades)`
+      : `"${alert.name}" repuesto (${alert.stock} unidades)`;
+    this.liveNotice.set(text);
+    clearTimeout(this.noticeTimer);
+    this.noticeTimer = setTimeout(() => this.liveNotice.set(null), 6000);
+
+    // el stock cambió: refresca la tabla sin el parpadeo de "Cargando inventario..."
+    this.productService.findAll().subscribe({ next: (data) => this.products.set(data) });
+  }
 
   selectSection(section: Section): void {
     this.activeSection.set(section);
