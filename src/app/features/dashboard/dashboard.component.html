@@ -225,25 +225,53 @@
 
     <aside class="dash__side">
       <div class="dash__panel-head">
+        <h2>Alertas de stock</h2>
+        <span class="live" [class.live--on]="alertsLive()">{{ alertsLive() ? 'En vivo' : 'Conectando…' }}</span>
+      </div>
+
+      @if (liveNotice()) {
+        <p class="dash__message dash__message--alert">{{ liveNotice() }}</p>
+      }
+
+      @if (alerts().length === 0) {
+        <p class="dash__message">Sin alertas: todo el inventario está sobre el umbral.</p>
+      } @else {
+        <ul class="alert-list">
+          @for (alert of alerts(); track alert.productId) {
+            <li class="alert-list__item" [class.alert-list__item--out]="alert.level === 'OUT'">
+              <div>
+                <strong>{{ alert.name }}</strong>
+                <small>{{ alert.code }}</small>
+              </div>
+              <span class="alert-list__badge">{{ alert.level === 'OUT' ? 'Agotado' : 'Stock bajo' }}</span>
+              <span class="alert-list__stock">{{ alert.stock }}</span>
+            </li>
+          }
+        </ul>
+      }
+
+      <div class="dash__panel-head dash__panel-head--spaced">
         <h2>Top 5 más vendidos</h2>
       </div>
-      <ul class="top-list">
-        @for (product of topProducts(); track product.name; let i = $index) {
-          <li class="top-list__item">
-            <div class="top-list__row">
-              <span class="top-list__rank">{{ i + 1 }}</span>
-              <span class="top-list__name">{{ product.name }}</span>
-              <span class="top-list__units">{{ product.unitsSold }}</span>
-            </div>
-            <div class="top-list__bar">
-              <div
-                class="top-list__bar-fill"
-                [style.width.%]="(product.unitsSold / maxUnitsSold()) * 100"
-              ></div>
-            </div>
-          </li>
-        }
-      </ul>
+
+      @if (topProducts().length === 0) {
+        <p class="dash__message">Todavía no hay ventas registradas.</p>
+      } @else {
+        <ul class="top-list">
+          @for (product of topProducts(); track product.name; let i = $index) {
+            <li class="top-list__item">
+              <div class="top-list__row">
+                <span class="top-list__rank">{{ i + 1 }}</span>
+                <span class="top-list__name">{{ product.name }}</span>
+                <span class="top-list__units">{{ product.unitsSold }}</span>
+              </div>
+              <div class="top-list__bar">
+                <div class="top-list__bar-fill" [style.width.%]="(product.unitsSold / maxUnitsSold()) * 100"></div>
+              </div>
+            </li>
+          }
+        </ul>
+      }
     </aside>
   </div>
 
